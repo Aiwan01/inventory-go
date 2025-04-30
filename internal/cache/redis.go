@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -31,26 +30,23 @@ func ConnectRedis() {
 }
 
 // getting data from redis by key
-func GetRedisValue(c *gin.Context) {
+func GetRedisValue(redisKey string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	val, err := redisDB.Get(ctx, "mykey").Result()
+	val, err := redisDB.Get(ctx, redisKey).Result()
 	if err != nil {
-		c.String(500, "Error in getting value %v", err)
+		return ""
 	}
-	c.String(200, val)
+	return val
 }
 
 // setting new key and value in redis
-func SetRedisValue(c *gin.Context) {
+func SetRedisValue(redisKey string, value string) bool {
 	ctx, cancell := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancell()
 
 	err := redisDB.Set(ctx, "", "", 0).Err()
-	if err != nil {
-		c.String(500, "failed to insert data in redis %v", err)
-	}
 
-	c.String(200, "Data saved in redis")
+	return err != nil
 }
