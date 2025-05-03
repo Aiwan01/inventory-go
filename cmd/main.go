@@ -7,6 +7,9 @@ import (
 
 	"github.com/Aiwan01/inventory-go/internal/cache"
 	"github.com/Aiwan01/inventory-go/internal/db"
+	"github.com/Aiwan01/inventory-go/internal/orders"
+	"github.com/Aiwan01/inventory-go/internal/products"
+	"github.com/Aiwan01/inventory-go/internal/users"
 	"github.com/joho/godotenv"
 	"golang.org/x/time/rate"
 
@@ -36,8 +39,17 @@ func main() {
 	cache.ConnectRedis()
 	app := gin.Default()
 
+	// implement rate limiter
 	limiter := rate.NewLimiter(1, 5)
 	app.Use(RateLimiter(limiter))
+
+	// user router calling
+	users.UserRouter(app)
+
+	// product routing
+	products.ProductRouter(app)
+	// order routing
+	orders.OrderRouter(app)
 
 	err := app.Run(":8000")
 	if err != nil {
